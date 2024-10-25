@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:todoapp/modules/archived_tasks/archived_tasks_screen.dart';
 import 'package:todoapp/modules/done_tasks/done_tasks_screen.dart';
@@ -27,6 +28,13 @@ class _HomeLayoutState extends State<HomeLayout> {
   ];
 
   late Database database;
+  var scaffoldKy = GlobalKey<ScaffoldState>();
+  var formKy = GlobalKey<FormState>();
+  bool isbotSheetShown = false;
+  IconData fabIcon = Icons.edit;
+  var titleController = TextEditingController();
+  var timeController = TextEditingController();
+  var dateController = TextEditingController();
 
   @override
   void initState() {
@@ -36,17 +44,127 @@ class _HomeLayoutState extends State<HomeLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKy,
       appBar: AppBar(
         title: Text(
           titles[currentIndex],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          insertIntoDatabase();
+        onPressed: ()
+        {
+          if(isbotSheetShown){
+            if(formKy.currentState!.validate()){
+              insertIntoDatabase(
+                title: titleController.text,
+                time: timeController.text,
+                date: dateController.text,
+              ).then((value) {
+                Navigator.pop(context);
+                isbotSheetShown = false;
+                setState(() {
+                  fabIcon = Icons.edit;
+                });
+              });
+            }
+          }
+          else
+          {
+            scaffoldKy.currentState?.showBottomSheet(
+                  (context) => Container(
+                    color: Colors.white,
+                    padding: EdgeInsets.all(20.0,),
+                    child: Form(
+                      key: formKy,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextFormField(
+                            controller: titleController,
+                            keyboardType: TextInputType.text,
+                            validator: (value){
+                              if(value.toString().isEmpty){
+                                return 'Title must not be empty';
+                              }
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'Task Title',
+                              prefixIcon: Icon(
+                                Icons.title,
+                              ),
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                          SizedBox(height: 15.0,),
+                          TextFormField(
+                            controller: timeController,
+                            keyboardType: TextInputType.datetime,
+                            onTap: (){
+                              showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay.now(),
+                              ).then((value) {
+                                timeController.text = value!.format(context).toString();
+                                print(value.format(context));
+                              });
+                            },
+                            validator: (value){
+                              if(value.toString().isEmpty){
+                                return 'time must not be empty';
+                              }
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'Task Time',
+                              prefixIcon: Icon(
+                                Icons.timer_outlined,
+                              ),
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                          SizedBox(height: 15.0,),
+                          TextFormField(
+                            controller: dateController,
+                            keyboardType: TextInputType.datetime,
+                            onTap: (){
+                              showDatePicker(
+                                  context: context,
+                                  firstDate: DateTime.now(),
+                                  lastDate: DateTime.parse('2030-12-31'),
+                              ).then((value) {
+                                dateController.text = DateFormat.yMMMd().format(value!);
+                              });
+                            },
+                            validator: (value){
+                              if(value.toString().isEmpty){
+                                return 'date must not be empty';
+                              }
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                              labelText: 'Task Date',
+                              prefixIcon: Icon(
+                                Icons.calendar_today,
+                              ),
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              elevation: 50.0,
+            );
+            isbotSheetShown = true;
+            setState(() {
+              fabIcon = Icons.add;
+            });
+          }
         },
+
         child: Icon(
-          Icons.add,
+         fabIcon,
         ),
       ),
       body: screens[currentIndex],
@@ -85,13 +203,13 @@ class _HomeLayoutState extends State<HomeLayout> {
 
   void createDatabase() async {
     database = await openDatabase(
-      'todo.db',
-      version: 1,
+      'todo1.db',
+      version: 4,
       onCreate: (database,version)
       {
         print('Data Base Created');
         // create tables
-        database.execute('CREATE TABLE tasks (id INTEGER PRIMARY KEY , title TEXT , time TEXT , status TEXT)').then((value) {
+        database.execute('CREATE TABLE tasks (id INTEGER PRIMARY KEY , title TEXT , time TEXT ,date TEXT, status TEXT)').then((value) {
           print('table created');
         }).catchError((error){
           print('error while creating table ${error.toString()}');
@@ -105,10 +223,14 @@ class _HomeLayoutState extends State<HomeLayout> {
     );
   }
 
-  Future<void> insertIntoDatabase() async {
-    await database.transaction((txn) async {
+  Future insertIntoDatabase({
+     required String title,
+     required String time,
+     required String date,
+  }) async {
+    return await database.transaction((txn) async {
       txn.rawInsert(
-          'INSERT INTO tasks(title,time,status) VALUES("first task" , "891","new")'
+          'INSERT INTO tasks(title,time,date,status) VALUES("$title","$time","$date","new")'
       ).then((value) {
         print('$value Inserted successfully');
       }).catchError((error) {
