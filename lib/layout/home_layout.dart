@@ -4,6 +4,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:todoapp/modules/archived_tasks/archived_tasks_screen.dart';
 import 'package:todoapp/modules/done_tasks/done_tasks_screen.dart';
 import 'package:todoapp/modules/new_tasks/new_tasks_screen.dart';
+import 'package:todoapp/shared/constants.dart';
 
 class HomeLayout extends StatefulWidget {
   const HomeLayout({super.key});
@@ -35,6 +36,7 @@ class _HomeLayoutState extends State<HomeLayout> {
   var titleController = TextEditingController();
   var timeController = TextEditingController();
   var dateController = TextEditingController();
+
 
   @override
   void initState() {
@@ -155,7 +157,12 @@ class _HomeLayoutState extends State<HomeLayout> {
                     ),
                   ),
               elevation: 50.0,
-            );
+            ).closed.then((value) {
+              isbotSheetShown = false;
+              setState(() {
+                fabIcon = Icons.edit;
+              });
+            });
             isbotSheetShown = true;
             setState(() {
               fabIcon = Icons.add;
@@ -218,6 +225,11 @@ class _HomeLayoutState extends State<HomeLayout> {
       },
 
       onOpen: (database){
+        getData(database).then((value)
+        {
+          tasks = value;
+          print(tasks);
+        });
         print('DataBase opened');
       },
     );
@@ -239,4 +251,9 @@ class _HomeLayoutState extends State<HomeLayout> {
       return null;
     });
   }
+
+  Future<List<Map>> getData(database) async{
+    return await database.rawQuery('SELECT * FROM tasks');
+  }
+
 }
