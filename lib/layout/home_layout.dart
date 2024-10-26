@@ -62,10 +62,17 @@ class _HomeLayoutState extends State<HomeLayout> {
                 time: timeController.text,
                 date: dateController.text,
               ).then((value) {
-                Navigator.pop(context);
-                isbotSheetShown = false;
-                setState(() {
-                  fabIcon = Icons.edit;
+                getData(database).then((value)
+                {
+                  Navigator.pop(context);
+
+                  setState(() {
+                    isbotSheetShown = false;
+                    fabIcon = Icons.edit;
+
+                    tasks = value;
+                    print(tasks);
+                  });
                 });
               });
             }
