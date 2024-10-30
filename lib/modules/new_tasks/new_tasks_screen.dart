@@ -13,9 +13,9 @@ class NewTasksScreen extends StatelessWidget {
     return BlocConsumer<AppCubit,AppStates>(
       listener: (context,state){},
       builder: (context,state){
-        var tasks = AppCubit.get(context).tasks; // this changes with get state
+        var tasks = AppCubit.get(context).newTasks; // this changes with get state
         return ListView.separated(
-          itemBuilder: (context,index) => buildTaskItem(tasks[index]),
+          itemBuilder: (context,index) => buildTaskItem(tasks[index] ,context),
           separatorBuilder: (context,index) => Container(
             width: double.infinity,
             height: 1.0,

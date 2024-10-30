@@ -34,7 +34,9 @@ class AppCubit extends Cubit<AppStates>
   }
 
   late Database database;
-  List<Map> tasks = [];
+  List<Map> newTasks = [];
+  List<Map> doneTasks = [];
+  List<Map> archivedTasks = [];
 
   void createDatabase(){
     openDatabase(
@@ -53,13 +55,7 @@ class AppCubit extends Cubit<AppStates>
       },
 
       onOpen: (database){
-        getData(database).then((value)
-        {
-          tasks = value;
-          print(tasks);
-
-          emit(AppGetDBState());
-        });
+        getData(database);
         print('DataBase opened');
       },
     ).then((value) {
@@ -81,13 +77,7 @@ class AppCubit extends Cubit<AppStates>
         print('$value Inserted successfully');
         emit(AppInsertDBState());
 
-        getData(database).then((value)
-        {
-          tasks = value;
-          print(tasks);
-
-          emit(AppGetDBState());
-        });
+        getData(database);
 
       }).catchError((error) {
         print('error while inserting record ${error.toString()}');
@@ -96,11 +86,46 @@ class AppCubit extends Cubit<AppStates>
     });
   }
 
-  Future<List<Map>> getData(database) async{
-    return await database.rawQuery('SELECT * FROM tasks');
+  void getData(database){
+
+    newTasks=[];
+    doneTasks=[];
+    archivedTasks=[];
+    database.rawQuery('SELECT * FROM tasks').then((value)
+    {
+
+      value.forEach((element) { 
+        if(element['status'] == 'new'){
+          newTasks.add(element);
+        }
+        else  if(element['status'] == 'done'){
+          doneTasks.add(element);
+        }
+        else {
+          archivedTasks.add(element);
+        }
+      });
+
+      emit(AppGetDBState());
+    });
   }
 
 
+  void updateData({
+    required String status,
+    required int id,
+}) async
+  {
+    database.rawUpdate(
+        'UPDATE tasks SET status =? WHERE id = ?',
+        ['$status' , id],
+    ).then((value) {
+      getData(database);
+      emit(AppUpdateDBState());
+
+    });
+
+  }
   bool isbotSheetShown = false;
   IconData fabIcon = Icons.edit;
 
