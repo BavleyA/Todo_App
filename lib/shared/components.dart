@@ -1,3 +1,4 @@
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:todoapp/shared/cubit/cubit.dart';
 
@@ -65,4 +66,39 @@ Widget buildTaskItem (Map model ,context) => Dismissible(
   onDismissed: (direction){
     AppCubit.get(context).DeleteData(id: model['id'],);
   },
+);
+
+Widget tasksBuilderWithCondition({
+  required List<Map> tasks,
+}) => ConditionalBuilder(
+  condition: tasks.length > 0,
+  builder: (context) => ListView.separated(
+    itemBuilder: (context,index) => buildTaskItem(tasks[index] ,context),
+    separatorBuilder: (context,index) => Container(
+      width: double.infinity,
+      height: 1.0,
+      color: Colors.grey[300],
+    ),
+    itemCount: tasks.length,
+  ),
+  fallback: (context) => Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.menu,
+          size: 100.0,
+          color: Colors.grey,
+        ),
+        Text(
+          'No Tasks Added Yet !',
+          style: TextStyle(
+            fontSize: 16.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey,
+          ),
+        ),
+      ],
+    ),
+  ),
 );

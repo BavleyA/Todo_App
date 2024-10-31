@@ -1,3 +1,4 @@
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todoapp/shared/components.dart';
@@ -14,14 +15,8 @@ class NewTasksScreen extends StatelessWidget {
       listener: (context,state){},
       builder: (context,state){
         var tasks = AppCubit.get(context).newTasks; // this changes with get state
-        return ListView.separated(
-          itemBuilder: (context,index) => buildTaskItem(tasks[index] ,context),
-          separatorBuilder: (context,index) => Container(
-            width: double.infinity,
-            height: 1.0,
-            color: Colors.grey[300],
-          ),
-          itemCount: tasks.length,
+        return tasksBuilderWithCondition(
+            tasks: tasks,
         );
       },
     );
