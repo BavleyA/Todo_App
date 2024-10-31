@@ -18,7 +18,7 @@ A simple Todo App built with Flutter, utilizing the BLoC (Business Logic Compone
 - [Getting Started](#getting-started)
 - [Screens Overview](#screens-overview)
 - [State Management with BLoC & Cubit](#state-management-with-bloc--cubit)
-- [Installation and Running the App](#installation-and-running-the-app)
+- [Installation and Running the App](#installation)
 - [Contributing](#contributing)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
