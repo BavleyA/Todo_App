@@ -13,6 +13,16 @@ A simple Todo App built with Flutter, utilizing the BLoC (Business Logic Compone
 
 - **Smooth Navigation**: Easy navigation between screens for a seamless user experience.
 
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Screens Overview](#screens-overview)
+- [State Management with BLoC & Cubit](#state-management-with-bloc--cubit)
+- [Installation and Running the App](#installation-and-running-the-app)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
 ## Getting Started
 
 # Screens Overview
